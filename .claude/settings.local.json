@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm --version)",
+      "PowerShell($cacheRoot = \"C:\\\\Desenvolvimentos\\\\orbital-balance-cache\"; New-Item -ItemType Directory -Path \"$cacheRoot\\\\node_modules\" -Force | Out-Null; New-Item -ItemType Directory -Path \"$cacheRoot\\\\.next\" -Force | Out-Null; Write-Output \"Cache criado em: $cacheRoot\"; Get-ChildItem $cacheRoot)",
+      "PowerShell($proj = \"c:\\\\Users\\\\carlosmauricio\\\\OneDrive - VCA Construtora\\\\Documentos\\\\Desenvolvimentos\\\\orbital-balance\"; $cache = \"C:\\\\Desenvolvimentos\\\\orbital-balance-cache\"; New-Item -ItemType Junction -Path \"$proj\\\\node_modules\" -Target \"$cache\\\\node_modules\" | Select-Object Name, LinkType, Target; New-Item -ItemType Junction -Path \"$proj\\\\.next\" -Target \"$cache\\\\.next\" | Select-Object Name, LinkType, Target)",
+      "PowerShell($proj = \"c:\\\\Users\\\\carlosmauricio\\\\OneDrive - VCA Construtora\\\\Documentos\\\\Desenvolvimentos\\\\orbital-balance\"; Get-ChildItem $proj -Force | Where-Object { $_.Name -in @\\(\"node_modules\", \".next\"\\) } | Format-List Name, Mode, LinkType, Target)",
+      "Bash(pnpm dlx *)",
+      "Bash(mkdir -p /tmp/obscaffold)",
+      "Read(//tmp/**)",
+      "Bash(rm pnpm-lock.yaml)",
+      "Bash(pnpm install *)",
+      "PowerShell($proj = \"c:\\\\Users\\\\carlosmauricio\\\\OneDrive - VCA Construtora\\\\Documentos\\\\Desenvolvimentos\\\\orbital-balance\"; $cache = \"C:\\\\Desenvolvimentos\\\\orbital-balance-cache\"; Remove-Item \"$proj\\\\node_modules\" -Force -ErrorAction SilentlyContinue; Remove-Item \"$cache\\\\node_modules\" -Recurse -Force -ErrorAction SilentlyContinue; New-Item -ItemType Directory -Path \"$cache\\\\node_modules\" -Force | Out-Null; New-Item -ItemType Junction -Path \"$proj\\\\node_modules\" -Target \"$cache\\\\node_modules\" | Out-Null; New-Item -ItemType Directory -Path \"C:\\\\Desenvolvimentos\\\\pnpm-store\" -Force | Out-Null; Write-Output \"OK: junction reset + store dir criado\")"
+    ]
+  }
+}
