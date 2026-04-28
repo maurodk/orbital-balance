@@ -9,13 +9,10 @@ import {
   CalendarDays,
   Tag,
   BarChart3,
-  Settings,
-  LogOut,
   Target,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Painel", icon: LayoutDashboard },
@@ -23,8 +20,12 @@ const NAV_ITEMS = [
   { href: "/dashboard/calendar", label: "Calendário", icon: CalendarDays },
   { href: "/dashboard/goals", label: "M&I", icon: Target },
   { href: "/dashboard/categories", label: "Categorias", icon: Tag },
-  { href: "/dashboard/reports", label: "Relatórios", icon: BarChart3 },
-  { href: "/dashboard/settings", label: "Config.", icon: Settings },
+  {
+    href: "/dashboard/reports",
+    label: "Relatórios",
+    icon: BarChart3,
+    mobileHidden: true,
+  },
 ];
 
 interface DockItemProps {
@@ -32,20 +33,24 @@ interface DockItemProps {
   label: string;
   active: boolean;
   onClick: () => void;
+  mobileHidden?: boolean;
 }
 
-function DockItem({ icon: Icon, label, active, onClick }: DockItemProps) {
+function DockItem({ icon: Icon, label, active, onClick, mobileHidden }: DockItemProps) {
   return (
     <motion.button
       onClick={onClick}
-      whileHover={{ scale: 1.06, y: -2 }}
+      whileHover={{ scale: 1.04, y: -1 }}
       whileTap={{ scale: 0.97 }}
       transition={{ type: "spring", stiffness: 520, damping: 32, mass: 0.55 }}
-      className="relative flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl"
+      className={cn(
+        "group relative flex min-w-0 flex-col items-center gap-0.5 rounded-xl px-0.5 py-1 sm:gap-1 sm:px-2 sm:py-1.5",
+        mobileHidden && "hidden lg:flex"
+      )}
     >
       <div
         className={cn(
-          "p-2.5 rounded-xl transition-all duration-300",
+          "rounded-xl p-1.5 transition-all duration-300 sm:p-2 lg:p-2.5",
           active
             ? "bg-orbital-gold/20 shadow-[0_0_16px_rgba(212,175,122,0.35)]"
             : "hover:bg-white/5"
@@ -53,7 +58,7 @@ function DockItem({ icon: Icon, label, active, onClick }: DockItemProps) {
       >
         <Icon
           className={cn(
-            "w-5 h-5 transition-colors duration-200",
+            "h-4 w-4 transition-colors duration-200 sm:h-[18px] sm:w-[18px] lg:h-5 lg:w-5",
             active
               ? "text-orbital-gold"
               : "text-orbital-muted group-hover:text-orbital-white"
@@ -62,7 +67,7 @@ function DockItem({ icon: Icon, label, active, onClick }: DockItemProps) {
       </div>
       <span
         className={cn(
-          "text-[10px] font-medium leading-none transition-colors duration-200",
+          "w-full truncate text-center text-[9px] font-medium leading-none transition-colors duration-200 sm:text-[10px]",
           active ? "text-orbital-gold" : "text-orbital-muted/60"
         )}
       >
@@ -85,21 +90,15 @@ export function DockNav() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const handleLogout = async () => {
-    const supabase = createSupabaseBrowserClient();
-    await supabase.auth.signOut();
-    router.replace("/login");
-  };
-
   return (
-    <div className="fixed bottom-4 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+    <div className="fixed inset-x-0 bottom-0 z-50 flex justify-center pointer-events-none lg:bottom-4 lg:px-4">
       <motion.nav
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.18, ease: "easeOut" }}
-        className="pointer-events-auto flex items-end gap-0.5 px-3 py-2.5 rounded-2xl border border-orbital-gold/15 shadow-[0_8px_40px_rgba(0,0,0,0.5),0_0_60px_rgba(212,175,122,0.05)]"
+        className="pointer-events-auto grid w-full grid-cols-5 gap-0.5 border-t border-orbital-gold/15 px-2 pb-[calc(0.35rem+env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-10px_36px_rgba(0,0,0,0.38)] sm:px-4 lg:flex lg:w-auto lg:items-end lg:gap-0.5 lg:rounded-2xl lg:border lg:px-3 lg:py-2.5 lg:shadow-[0_8px_40px_rgba(0,0,0,0.5),0_0_60px_rgba(212,175,122,0.05)]"
         style={{
-          background: "rgba(11, 19, 32, 0.82)",
+          background: "rgba(11, 19, 32, 0.92)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
         }}
@@ -117,28 +116,11 @@ export function DockNav() {
               label={item.label}
               active={active}
               onClick={() => router.push(item.href)}
+              mobileHidden={item.mobileHidden}
             />
           );
         })}
 
-        {/* Divider */}
-        <div className="w-px h-9 bg-orbital-gold/12 mx-1 self-center" />
-
-        {/* Logout */}
-        <motion.button
-          onClick={handleLogout}
-          whileHover={{ scale: 1.06, y: -2 }}
-          whileTap={{ scale: 0.97 }}
-          transition={{ type: "spring", stiffness: 520, damping: 32, mass: 0.55 }}
-          className="group flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl"
-        >
-          <div className="p-2.5 rounded-xl hover:bg-destructive/10 transition-colors duration-200">
-            <LogOut className="w-5 h-5 text-orbital-muted group-hover:text-destructive transition-colors duration-200" />
-          </div>
-          <span className="text-[10px] font-medium leading-none text-orbital-muted/60">
-            Sair
-          </span>
-        </motion.button>
       </motion.nav>
     </div>
   );

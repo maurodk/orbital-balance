@@ -44,3 +44,5 @@ next-env.d.ts
 
 # Orbital cache (external junction targets, safety only)
 /orbital-balance-cache
+
+.vercel

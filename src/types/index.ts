@@ -20,6 +20,8 @@ export type Investment =
   Database["public"]["Tables"]["investments"]["Row"];
 export type InvestmentContribution =
   Database["public"]["Tables"]["investment_contributions"]["Row"];
+export type InvestmentGoalAllocation =
+  Database["public"]["Tables"]["investment_goal_allocations"]["Row"];
 
 export type TransactionInsert =
   Database["public"]["Tables"]["transactions"]["Insert"];
@@ -31,6 +33,8 @@ export type InvestmentInsert =
   Database["public"]["Tables"]["investments"]["Insert"];
 export type InvestmentContributionInsert =
   Database["public"]["Tables"]["investment_contributions"]["Insert"];
+export type InvestmentGoalAllocationInsert =
+  Database["public"]["Tables"]["investment_goal_allocations"]["Insert"];
 
 export interface TransactionWithCategory extends Transaction {
   category: Category | null;
@@ -39,6 +43,11 @@ export interface TransactionWithCategory extends Transaction {
 export interface InvestmentGoalWithRelations extends InvestmentGoal {
   investments: Investment[];
   contributions: InvestmentContribution[];
+  allocations: InvestmentGoalAllocation[];
+}
+
+export interface InvestmentWithAllocations extends Investment {
+  allocations: InvestmentGoalAllocation[];
 }
 
 export interface CalendarEvent {

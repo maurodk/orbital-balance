@@ -20,7 +20,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
       <Header />
 
-      <main className="relative z-10 pb-32 min-h-[calc(100vh-56px)]">
+      <main className="relative z-10 min-h-[calc(100vh-56px)] pb-[calc(5.25rem+env(safe-area-inset-bottom))] lg:pb-32">
         <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-screen-2xl mx-auto">
           {children}
         </div>

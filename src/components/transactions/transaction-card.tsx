@@ -31,9 +31,14 @@ const NECESSITY_LABELS: Record<string, { label: string; className: string }> = {
 interface TransactionCardProps {
   transaction: TransactionWithCategory;
   index?: number;
+  relaxedMobile?: boolean;
 }
 
-export function TransactionCard({ transaction: t, index = 0 }: TransactionCardProps) {
+export function TransactionCard({
+  transaction: t,
+  index = 0,
+  relaxedMobile = false,
+}: TransactionCardProps) {
   const [editOpen, setEditOpen] = useState(false);
   const deleteMutation = useDeleteTransaction();
   const createMutation = useCreateTransaction();
@@ -56,45 +61,65 @@ export function TransactionCard({ transaction: t, index = 0 }: TransactionCardPr
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: index * 0.04 }}
-        className="flex items-center gap-3 rounded-xl bg-orbital-surface border border-orbital-gold/[0.08] px-4 py-3 hover:border-orbital-gold/20 hover:shadow-[0_4px_20px_rgba(212,175,122,0.06)] transition-all"
+        className={cn(
+          "rounded-xl bg-orbital-surface border border-orbital-gold/[0.08] px-4 py-3 hover:border-orbital-gold/20 hover:shadow-[0_4px_20px_rgba(212,175,122,0.06)] transition-all",
+          relaxedMobile
+            ? "flex flex-col gap-3 md:flex-row md:items-center"
+            : "flex items-center gap-3"
+        )}
       >
-        {/* Category dot */}
-        <div
-          className="h-9 w-9 rounded-full flex-shrink-0 flex items-center justify-center"
-          style={{ backgroundColor: `${t.category?.color ?? "#94A3B8"}20` }}
-        >
-          <span
-            className="h-3 w-3 rounded-full"
-            style={{ backgroundColor: t.category?.color ?? "#94A3B8" }}
-          />
-        </div>
+        <div className={cn("flex min-w-0 flex-1 items-start gap-3", !relaxedMobile && "items-center")}>
+          {/* Category dot */}
+          <div
+            className="h-9 w-9 rounded-full flex-shrink-0 flex items-center justify-center"
+            style={{ backgroundColor: `${t.category?.color ?? "#94A3B8"}20` }}
+          >
+            <span
+              className="h-3 w-3 rounded-full"
+              style={{ backgroundColor: t.category?.color ?? "#94A3B8" }}
+            />
+          </div>
 
-        {/* Info */}
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-orbital-white truncate">{t.description}</p>
-          <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-xs text-orbital-muted">{formatDate(t.date)}</span>
-            {t.category && (
-              <span
-                className="text-xs px-1.5 py-0.5 rounded-full"
-                style={{
-                  backgroundColor: `${t.category.color}18`,
-                  color: t.category.color,
-                }}
-              >
-                {t.category.name}
-              </span>
-            )}
-            {showNecessity && (
-              <span className={cn("text-xs px-1.5 py-0.5 rounded-full", necessity.className)}>
-                {necessity.label}
-              </span>
-            )}
+          {/* Info */}
+          <div className="flex-1 min-w-0">
+            <p className={cn("text-sm font-medium text-orbital-white", relaxedMobile ? "line-clamp-2 md:truncate" : "truncate")}>
+              {t.description}
+            </p>
+            <div
+              className={cn(
+                "mt-1 flex gap-1.5",
+                relaxedMobile ? "flex-wrap items-center md:mt-0.5 md:gap-2" : "items-center gap-2"
+              )}
+            >
+              <span className="text-xs text-orbital-muted">{formatDate(t.date)}</span>
+              {t.category && (
+                <span
+                  className="text-xs px-1.5 py-0.5 rounded-full"
+                  style={{
+                    backgroundColor: `${t.category.color}18`,
+                    color: t.category.color,
+                  }}
+                >
+                  {t.category.name}
+                </span>
+              )}
+              {showNecessity && (
+                <span className={cn("text-xs px-1.5 py-0.5 rounded-full", necessity.className)}>
+                  {necessity.label}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Amount */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div
+          className={cn(
+            "flex items-center gap-2 flex-shrink-0",
+            relaxedMobile &&
+              "justify-between border-t border-orbital-gold/10 pt-3 md:justify-start md:border-t-0 md:pt-0"
+          )}
+        >
           <span
             className={cn(
               "text-sm font-semibold",

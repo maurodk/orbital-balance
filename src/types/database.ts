@@ -270,6 +270,29 @@ export interface Database {
         };
         Relationships: [];
       };
+      investment_goal_allocations: {
+        Row: {
+          id: string;
+          user_id: string;
+          investment_id: string;
+          goal_id: string;
+          percentage: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          investment_id: string;
+          goal_id: string;
+          percentage: number;
+        };
+        Update: {
+          investment_id?: string;
+          goal_id?: string;
+          percentage?: number;
+        };
+        Relationships: [];
+      };
       investment_contributions: {
         Row: {
           id: string;

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Pencil, Trash2, Lock } from "lucide-react";
+import { Lock, Palette, Pencil, Plus, Trash2 } from "lucide-react";
 import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from "@/hooks/useCategories";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { Button } from "@/components/ui/button";
@@ -63,6 +63,16 @@ function CategoryFormDialog({
 
   const isEditing = !!editing;
   const isBusy = createMutation.isPending || updateMutation.isPending;
+  const isColorValid = /^#[0-9A-Fa-f]{6}$/.test(form.color);
+  const previewColor = isColorValid ? form.color : defaultForm.color;
+
+  useEffect(() => {
+    setForm(
+      editing
+        ? { name: editing.name, color: editing.color, icon: editing.icon, type: editing.type }
+        : defaultForm
+    );
+  }, [editing, open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,6 +119,40 @@ function CategoryFormDialog({
 
           <div className="space-y-1.5">
             <Label>Cor</Label>
+            <div className="flex items-center gap-3 rounded-lg border border-orbital-gold/10 bg-orbital-deep/40 p-3">
+              <label
+                className="relative flex h-12 w-12 flex-shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-orbital-gold/20"
+                style={{ backgroundColor: previewColor }}
+                aria-label="Escolher cor personalizada"
+              >
+                <input
+                  type="color"
+                  value={previewColor}
+                  onChange={(e) => setForm((f) => ({ ...f, color: e.target.value.toUpperCase() }))}
+                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                />
+                <Palette className="h-5 w-5 text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.55)]" />
+              </label>
+              <div className="min-w-0 flex-1 space-y-1">
+                <Input
+                  value={form.color}
+                  onChange={(e) => setForm((f) => ({ ...f, color: e.target.value }))}
+                  onBlur={() => {
+                    if (!/^#[0-9A-Fa-f]{6}$/.test(form.color)) {
+                      setForm((f) => ({ ...f, color: defaultForm.color }));
+                    } else {
+                      setForm((f) => ({ ...f, color: f.color.toUpperCase() }));
+                    }
+                  }}
+                  placeholder="#D4AF7A"
+                  maxLength={7}
+                  className="font-mono text-xs uppercase"
+                />
+                <p className="text-[11px] text-orbital-muted">
+                  Escolha na paleta ou informe um hexadecimal.
+                </p>
+              </div>
+            </div>
             <div className="flex flex-wrap gap-2">
               {PRESET_COLORS.map((c) => (
                 <button
@@ -128,16 +172,16 @@ function CategoryFormDialog({
           <div className="flex items-center gap-3">
             <div
               className="h-10 w-10 rounded-full flex-shrink-0 flex items-center justify-center"
-              style={{ backgroundColor: `${form.color}25` }}
+              style={{ backgroundColor: `${previewColor}25` }}
             >
-              <span className="h-4 w-4 rounded-full" style={{ backgroundColor: form.color }} />
+              <span className="h-4 w-4 rounded-full" style={{ backgroundColor: previewColor }} />
             </div>
             <span className="text-sm text-orbital-white font-medium">{form.name || "Prévia"}</span>
           </div>
 
           <Button
             type="submit"
-            disabled={isBusy || !form.name.trim()}
+            disabled={isBusy || !form.name.trim() || !isColorValid}
             className="w-full bg-orbital-gold text-orbital-deep hover:bg-orbital-gold-dark font-semibold"
           >
             {isBusy ? <LoadingSpinner size={16} /> : isEditing ? "Salvar" : "Criar categoria"}

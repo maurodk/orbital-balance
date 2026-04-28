@@ -7,9 +7,12 @@ import type {
   Investment,
   InvestmentContributionInsert,
   InvestmentGoal,
+  InvestmentGoalAllocation,
+  InvestmentGoalAllocationInsert,
   InvestmentGoalInsert,
   InvestmentGoalWithRelations,
   InvestmentInsert,
+  InvestmentWithAllocations,
 } from "@/types";
 import type { Database } from "@/types/database";
 
@@ -17,6 +20,17 @@ type GoalUpdate = Database["public"]["Tables"]["investment_goals"]["Update"] & {
 type InvestmentUpdate = Database["public"]["Tables"]["investments"]["Update"] & { id: string };
 
 export const INVESTMENTS_KEY = ["investments"] as const;
+
+async function fetchAllocationsSafe(): Promise<InvestmentGoalAllocation[]> {
+  const supabase = createSupabaseBrowserClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any)
+    .from("investment_goal_allocations")
+    .select("*");
+
+  if (error) return [];
+  return (data ?? []) as InvestmentGoalAllocation[];
+}
 
 async function getUserId() {
   const supabase = createSupabaseBrowserClient();
@@ -31,17 +45,43 @@ async function getUserId() {
 export async function fetchInvestmentGoals(): Promise<InvestmentGoalWithRelations[]> {
   const supabase = createSupabaseBrowserClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data: goals, error } = await (supabase as any)
     .from("investment_goals")
-    .select("*, investments(*), contributions:investment_contributions(*)")
+    .select("*, contributions:investment_contributions(*)")
     .eq("is_archived", false)
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
-  return (data ?? []) as InvestmentGoalWithRelations[];
+
+  const [{ data: investments, error: investmentsError }, allocations] =
+    await Promise.all([
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (supabase as any).from("investments").select("*"),
+      fetchAllocationsSafe(),
+    ]);
+
+  if (investmentsError) throw new Error(investmentsError.message);
+
+  return ((goals ?? []) as InvestmentGoalWithRelations[]).map((goal) => {
+    const goalAllocations = allocations.filter(
+      (allocation) => allocation.goal_id === goal.id
+    );
+    const allocatedInvestments = ((investments ?? []) as Investment[]).filter(
+      (investment) =>
+        investment.goal_id === goal.id ||
+        goalAllocations.some((allocation) => allocation.investment_id === investment.id)
+    );
+
+    return {
+      ...goal,
+      investments: allocatedInvestments,
+      allocations: goalAllocations,
+      contributions: goal.contributions ?? [],
+    };
+  });
 }
 
-export async function fetchInvestments(): Promise<Investment[]> {
+export async function fetchInvestments(): Promise<InvestmentWithAllocations[]> {
   const supabase = createSupabaseBrowserClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (supabase as any)
@@ -50,7 +90,11 @@ export async function fetchInvestments(): Promise<Investment[]> {
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
-  return (data ?? []) as Investment[];
+  const allocations = await fetchAllocationsSafe();
+  return ((data ?? []) as Investment[]).map((investment) => ({
+    ...investment,
+    allocations: allocations.filter((allocation) => allocation.investment_id === investment.id),
+  }));
 }
 
 export function useInvestmentGoals() {
@@ -115,6 +159,23 @@ export function useUpdateInvestmentGoal() {
   });
 }
 
+export function useDeleteInvestmentGoal() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const supabase = createSupabaseBrowserClient();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase as any).from("investment_goals").delete().eq("id", id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: INVESTMENTS_KEY });
+      toast.success("Meta excluida!");
+    },
+    onError: (err: Error) => toast.error("Erro ao excluir meta", { description: err.message }),
+  });
+}
+
 export function useCreateInvestment() {
   const qc = useQueryClient();
   return useMutation({
@@ -160,6 +221,74 @@ export function useUpdateInvestment() {
       toast.success("Investimento atualizado!");
     },
     onError: (err: Error) => toast.error("Erro ao atualizar investimento", { description: err.message }),
+  });
+}
+
+export function useDeleteInvestment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const supabase = createSupabaseBrowserClient();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase as any).from("investments").delete().eq("id", id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: INVESTMENTS_KEY });
+      toast.success("Investimento excluido!");
+    },
+    onError: (err: Error) => toast.error("Erro ao excluir investimento", { description: err.message }),
+  });
+}
+
+export function useUpsertInvestmentAllocations() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      investmentId,
+      allocations,
+    }: {
+      investmentId: string;
+      allocations: Omit<InvestmentGoalAllocationInsert, "user_id" | "investment_id">[];
+    }) => {
+      const supabase = createSupabaseBrowserClient();
+      const userId = await getUserId();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error: deleteError } = await (supabase as any)
+        .from("investment_goal_allocations")
+        .delete()
+        .eq("investment_id", investmentId);
+
+      if (deleteError) throw new Error(deleteError.message);
+
+      if (allocations.length > 0) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error: insertError } = await (supabase as any)
+          .from("investment_goal_allocations")
+          .insert(
+            allocations.map((allocation) => ({
+              ...allocation,
+              investment_id: investmentId,
+              user_id: userId,
+            }))
+          );
+
+        if (insertError) throw new Error(insertError.message);
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error: updateError } = await (supabase as any)
+        .from("investments")
+        .update({ goal_id: allocations.length === 1 ? allocations[0].goal_id : null })
+        .eq("id", investmentId);
+
+      if (updateError) throw new Error(updateError.message);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: INVESTMENTS_KEY });
+      toast.success("Alocacao atualizada!");
+    },
+    onError: (err: Error) => toast.error("Erro ao vincular investimento", { description: err.message }),
   });
 }
 

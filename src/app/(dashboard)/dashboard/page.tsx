@@ -261,15 +261,15 @@ export default function DashboardPage() {
           variants={fadeUp}
           initial="hidden"
           animate="visible"
-          className="glass-card rounded-xl p-5"
+          className="glass-card rounded-xl p-4 md:p-5"
         >
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center justify-between gap-3 mb-4 md:mb-5">
             <h3 className="text-sm font-semibold text-orbital-white">Últimas transações</h3>
             <Link href="/dashboard/transactions">
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-orbital-gold hover:text-orbital-gold text-xs gap-1"
+                className="h-8 shrink-0 text-orbital-gold hover:text-orbital-gold text-xs gap-1 px-2 md:px-3"
               >
                 Ver todas <ArrowRight className="h-3 w-3" />
               </Button>
@@ -286,9 +286,9 @@ export default function DashboardPage() {
               description="Use os botões acima para registrar sua primeira transação."
             />
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-3 md:space-y-2">
               {recentTransactions.map((t, i) => (
-                <TransactionCard key={t.id} transaction={t} index={i} />
+                <TransactionCard key={t.id} transaction={t} index={i} relaxedMobile />
               ))}
             </div>
           )}
