@@ -63,16 +63,17 @@ export function Header() {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem
-              onClick={() => router.push("/dashboard/reports")}
-              className="lg:hidden"
-            >
-              <BarChart3 className="h-4 w-4" />
-              Relatórios
+            <DropdownMenuItem asChild className="lg:hidden">
+              <Link href="/dashboard/reports" prefetch>
+                <BarChart3 className="h-4 w-4" />
+                Relatórios
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => router.push("/dashboard/settings")}>
-              <Settings className="h-4 w-4" />
-              Configurações
+            <DropdownMenuItem asChild>
+              <Link href="/dashboard/settings" prefetch>
+                <Settings className="h-4 w-4" />
+                Configurações
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

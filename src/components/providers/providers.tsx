@@ -10,10 +10,13 @@ export function Providers({ children }: { children: ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 30_000,
-            gcTime: 5 * 60_000,
+            // Data stays fresh across navigation for 2 min — no spinner when
+            // revisiting a tab. Mutations invalidate the affected keys anyway.
+            staleTime: 2 * 60_000,
+            gcTime: 10 * 60_000,
             retry: 1,
             refetchOnWindowFocus: false,
+            refetchOnMount: false,
           },
           mutations: { retry: 0 },
         },

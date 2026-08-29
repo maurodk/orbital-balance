@@ -23,6 +23,8 @@ export function useCategories() {
   return useQuery({
     queryKey: QUERY_KEY,
     queryFn: fetchCategories,
+    // Categories change rarely; keep them fresh for 10 min.
+    staleTime: 10 * 60_000,
   });
 }
 

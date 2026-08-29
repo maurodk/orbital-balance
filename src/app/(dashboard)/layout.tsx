@@ -8,11 +8,14 @@ import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const supabase = await createSupabaseServerClient();
+  // getSession() reads the cookie with no network round-trip. The middleware
+  // already validates/refreshes the token and redirects unauthenticated users,
+  // so this is just a defensive fallback.
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) redirect("/login");
+  if (!session) redirect("/login");
 
   return (
     <div className="min-h-screen bg-[#0A1628] relative overflow-x-hidden">

@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard,
@@ -28,18 +29,22 @@ const NAV_ITEMS = [
   },
 ];
 
+const MotionLink = motion(Link);
+
 interface DockItemProps {
+  href: string;
   icon: LucideIcon;
   label: string;
   active: boolean;
-  onClick: () => void;
   mobileHidden?: boolean;
 }
 
-function DockItem({ icon: Icon, label, active, onClick, mobileHidden }: DockItemProps) {
+function DockItem({ href, icon: Icon, label, active, mobileHidden }: DockItemProps) {
   return (
-    <motion.button
-      onClick={onClick}
+    <MotionLink
+      href={href}
+      prefetch
+      aria-current={active ? "page" : undefined}
       whileHover={{ scale: 1.04, y: -1 }}
       whileTap={{ scale: 0.97 }}
       transition={{ type: "spring", stiffness: 520, damping: 32, mass: 0.55 }}
@@ -82,13 +87,12 @@ function DockItem({ icon: Icon, label, active, onClick, mobileHidden }: DockItem
           transition={{ type: "spring", stiffness: 350, damping: 25 }}
         />
       )}
-    </motion.button>
+    </MotionLink>
   );
 }
 
 export function DockNav() {
   const pathname = usePathname();
-  const router = useRouter();
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 flex justify-center pointer-events-none lg:bottom-4 lg:px-4">
@@ -108,10 +112,10 @@ export function DockNav() {
           return (
             <DockItem
               key={item.href}
+              href={item.href}
               icon={item.icon}
               label={item.label}
               active={active}
-              onClick={() => router.push(item.href)}
               mobileHidden={item.mobileHidden}
             />
           );
