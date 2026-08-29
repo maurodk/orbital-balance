@@ -8,16 +8,12 @@ const vertexShader = `
   uniform float time;
   uniform float intensity;
   varying vec2 vUv;
-  varying vec3 vPosition;
 
   void main() {
     vUv = uv;
-    vPosition = position;
-
     vec3 pos = position;
     pos.y += sin(pos.x * 10.0 + time) * 0.08 * intensity;
     pos.x += cos(pos.y * 8.0 + time * 1.5) * 0.04 * intensity;
-
     gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
   }
 `;
@@ -28,7 +24,6 @@ const fragmentShader = `
   uniform vec3 color1;
   uniform vec3 color2;
   varying vec2 vUv;
-  varying vec3 vPosition;
 
   void main() {
     vec2 uv = vUv;
@@ -38,10 +33,8 @@ const fragmentShader = `
     noise *= 0.5;
 
     vec3 color = mix(color1, color2, noise * 0.5 + 0.5);
-    // very subtle highlight — stay dark/blue
     color = mix(color, color2 * 1.2, pow(abs(noise), 3.0) * intensity * 0.08);
 
-    // soft center glow — does NOT go to zero at edges
     float glow = 1.0 - length(uv - 0.5) * 0.6;
     glow = clamp(glow, 0.55, 1.0);
 
@@ -53,10 +46,12 @@ export function ShaderPlane({
   position,
   color1 = "#0A1628",
   color2 = "#0D3B6E",
+  animate = true,
 }: {
   position: [number, number, number];
   color1?: string;
   color2?: string;
+  animate?: boolean;
 }) {
   const mesh = useRef<THREE.Mesh>(null);
 
@@ -71,16 +66,16 @@ export function ShaderPlane({
   );
 
   useFrame((state) => {
-    if (mesh.current) {
-      // slow, cinematic animation
-      uniforms.time.value = state.clock.elapsedTime * 0.35;
-      uniforms.intensity.value = 0.7 + Math.sin(state.clock.elapsedTime * 0.4) * 0.15;
-    }
+    if (!animate || !mesh.current) return;
+    uniforms.time.value = state.clock.elapsedTime * 0.35;
+    uniforms.intensity.value =
+      0.7 + Math.sin(state.clock.elapsedTime * 0.4) * 0.15;
   });
 
   return (
     <mesh ref={mesh} position={position}>
-      <planeGeometry args={[10, 7, 48, 48]} />
+      {/* Lower subdivision (was 48x48) — the vertex wave still reads fine */}
+      <planeGeometry args={[10, 7, 16, 16]} />
       <shaderMaterial
         uniforms={uniforms}
         vertexShader={vertexShader}

@@ -130,11 +130,11 @@
     );
   }
 
-  /* Glassmorphism card */
+  /* Card surface — solid translucency, no backdrop-filter.
+     backdrop-filter forced a full-layer recomposite every frame (esp. over the
+     old animated canvas) and was a major source of jank. */
   .glass-card {
-    background: rgba(28, 42, 58, 0.55);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
+    background: rgba(24, 36, 52, 0.92);
     border: 1px solid rgba(212, 175, 122, 0.12);
   }
 }

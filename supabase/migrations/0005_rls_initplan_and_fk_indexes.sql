@@ -1,0 +1,12 @@
+-- ============================================================================
+-- Perf (0005): applied live via Supabase MCP on 2026-08-29.
+--
+-- 1. Every RLS policy wrapped auth.uid() as (select auth.uid()) so Postgres
+--    evaluates it once per statement instead of once per row (39 policies).
+-- 2. Covering indexes added for 4 previously-unindexed foreign keys.
+--
+-- Full statement list is in the applied migration
+-- `rls_initplan_and_fk_indexes` in the Supabase project history. Kept here as a
+-- pointer; this migrations folder is not the source of truth for the live DB
+-- (see 0004 header).
+-- ============================================================================

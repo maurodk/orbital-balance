@@ -15,7 +15,7 @@ import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { useUIStore } from "@/store/useUIStore";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { useUserDisplayName } from "@/hooks/useAuthUser";
 import { cn } from "@/lib/utils";
 import type { MonthSummary } from "@/types";
 
@@ -62,19 +62,9 @@ export default function DashboardPage() {
   const year = now.getFullYear();
   const greeting = getGreeting();
 
-  const [firstName, setFirstName] = useState("");
+  const { name: fullName } = useUserDisplayName();
+  const firstName = fullName.split(" ")[0];
   const { openTransactionDialog } = useUIStore();
-
-  useEffect(() => {
-    const supabase = createSupabaseBrowserClient();
-    supabase.auth.getUser().then(({ data }) => {
-      const name =
-        (data.user?.user_metadata?.name as string | undefined) ??
-        data.user?.email?.split("@")[0] ??
-        "";
-      setFirstName(name.split(" ")[0]);
-    });
-  }, []);
 
   const { data: allTransactions = [], isLoading: loadingAll } = useTransactions();
   const { data: recentTransactions = [], isLoading: loadingRecent } = useRecentTransactions(5);

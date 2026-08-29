@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BarChart3, LogOut, Settings } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { useUserDisplayName } from "@/hooks/useAuthUser";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,19 +16,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function Header() {
-  const [userName, setUserName] = useState("");
+  const { name: userName } = useUserDisplayName();
   const router = useRouter();
-
-  useEffect(() => {
-    const supabase = createSupabaseBrowserClient();
-    supabase.auth.getUser().then(({ data }) => {
-      setUserName(
-        (data.user?.user_metadata?.name as string | undefined) ??
-          data.user?.email?.split("@")[0] ??
-          ""
-      );
-    });
-  }, []);
 
   const initials = userName
     .split(" ")
@@ -46,11 +35,7 @@ export function Header() {
   return (
     <header
       className="sticky top-0 z-20 flex h-16 items-center justify-center border-b border-orbital-gold/10 px-4 lg:px-8 relative"
-      style={{
-        background: "rgba(11, 19, 32, 0.85)",
-        backdropFilter: "blur(24px)",
-        WebkitBackdropFilter: "blur(24px)",
-      }}
+      style={{ background: "rgba(9, 15, 26, 0.96)" }}
     >
       <Link
         href="/dashboard"

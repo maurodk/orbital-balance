@@ -97,11 +97,7 @@ export function DockNav() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.18, ease: "easeOut" }}
         className="pointer-events-auto grid w-full grid-cols-5 gap-0.5 border-t border-orbital-gold/15 px-2 pb-[calc(0.35rem+env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-10px_36px_rgba(0,0,0,0.38)] sm:px-4 lg:flex lg:w-auto lg:items-end lg:gap-0.5 lg:rounded-2xl lg:border lg:px-3 lg:py-2.5 lg:shadow-[0_8px_40px_rgba(0,0,0,0.5),0_0_60px_rgba(212,175,122,0.05)]"
-        style={{
-          background: "rgba(11, 19, 32, 0.92)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-        }}
+        style={{ background: "rgba(11, 19, 32, 0.97)" }}
       >
         {NAV_ITEMS.map((item) => {
           const active =
