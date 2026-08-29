@@ -12,5 +12,9 @@
       "Bash(pnpm install *)",
       "PowerShell($proj = \"c:\\\\Users\\\\carlosmauricio\\\\OneDrive - VCA Construtora\\\\Documentos\\\\Desenvolvimentos\\\\orbital-balance\"; $cache = \"C:\\\\Desenvolvimentos\\\\orbital-balance-cache\"; Remove-Item \"$proj\\\\node_modules\" -Force -ErrorAction SilentlyContinue; Remove-Item \"$cache\\\\node_modules\" -Recurse -Force -ErrorAction SilentlyContinue; New-Item -ItemType Directory -Path \"$cache\\\\node_modules\" -Force | Out-Null; New-Item -ItemType Junction -Path \"$proj\\\\node_modules\" -Target \"$cache\\\\node_modules\" | Out-Null; New-Item -ItemType Directory -Path \"C:\\\\Desenvolvimentos\\\\pnpm-store\" -Force | Out-Null; Write-Output \"OK: junction reset + store dir criado\")"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "supabase"
+  ],
+  "enableAllProjectMcpServers": true
 }
