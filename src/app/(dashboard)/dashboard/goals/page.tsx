@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Label } from "@/components/ui/label";
 import {
   Dialog,
@@ -60,7 +61,7 @@ const GOAL_COLORS = ["#D4AF7A", "#22C55E", "#3B82F6", "#8B5CF6", "#14B8A6", "#F9
 
 const GOAL_CATEGORIES = [
   "Reserva",
-  "Carro",
+  "Automóvel",
   "Imovel",
   "Viagem",
   "Educacao",
@@ -240,7 +241,7 @@ function GoalFormDialog({ open, onClose }: { open: boolean; onClose: () => void 
             </div>
             <div className="space-y-1.5">
               <Label>Prazo opcional</Label>
-              <Input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
+              <DateInput value={deadline} onChange={setDeadline} />
             </div>
             <div className="space-y-1.5">
               <Label>Categoria</Label>
@@ -469,7 +470,7 @@ function ContributionDialog({
             </div>
             <div className="space-y-1.5">
               <Label>Data</Label>
-              <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+              <DateInput value={date} onChange={setDate} />
             </div>
           </div>
           <div className="space-y-1.5">

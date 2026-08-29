@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -10,12 +10,12 @@ import {
   Banknote,
   Zap,
   ArrowLeftRight,
-  CalendarDays,
   TrendingUp,
   TrendingDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -91,7 +91,6 @@ export function TransactionForm({ defaultType = "expense", editingTransaction, o
   const { data: categories = [] } = useCategories();
   const createMutation = useCreateTransaction();
   const updateMutation = useUpdateTransaction();
-  const dateInputRef = useRef<HTMLInputElement | null>(null);
 
   const isEditing = !!editingTransaction;
 
@@ -163,19 +162,6 @@ export function TransactionForm({ defaultType = "expense", editingTransaction, o
   };
 
   const isBusy = isSubmitting || createMutation.isPending || updateMutation.isPending;
-  const dateField = register("date");
-
-  const openDatePicker = () => {
-    const input = dateInputRef.current;
-    if (!input) return;
-
-    if (typeof input.showPicker === "function") {
-      input.showPicker();
-      return;
-    }
-
-    input.focus();
-  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -261,28 +247,20 @@ export function TransactionForm({ defaultType = "expense", editingTransaction, o
       {/* Date */}
       <div className="space-y-1.5">
         <Label htmlFor="date">Data</Label>
-        <div className="relative">
-          <button
-            type="button"
-            aria-label="Abrir calendário"
-            onClick={openDatePicker}
-            className="absolute left-2 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-orbital-gold transition-colors duration-100 hover:bg-orbital-gold/10 active:bg-orbital-gold/20"
-          >
-            <CalendarDays className="h-4 w-4" />
-          </button>
-          <Input
-            id="date"
-            type="date"
-            className="date-input pl-10 pr-4 bg-orbital-surface text-orbital-white border-orbital-gold/20 hover:border-orbital-gold/35"
-            name={dateField.name}
-            onBlur={dateField.onBlur}
-            onChange={dateField.onChange}
-            ref={(element) => {
-              dateField.ref(element);
-              dateInputRef.current = element;
-            }}
-          />
-        </div>
+        <Controller
+          control={control}
+          name="date"
+          render={({ field }) => (
+            <DateInput
+              id="date"
+              name={field.name}
+              value={field.value}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              className="bg-orbital-surface text-orbital-white border-orbital-gold/20 hover:border-orbital-gold/35"
+            />
+          )}
+        />
         {errors.date && <p className="text-xs text-destructive">{errors.date.message}</p>}
       </div>
 

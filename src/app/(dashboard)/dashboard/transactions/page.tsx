@@ -9,6 +9,7 @@ import { TransactionCard } from "@/components/transactions/transaction-card";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -132,17 +133,13 @@ export default function TransactionsPage() {
           </Select>
 
           <div className="flex gap-2">
-            <Input
-              type="date"
-              placeholder="De"
+            <DateInput
               value={filters.dateFrom ?? ""}
-              onChange={(e) => setTransactionFilter("dateFrom", e.target.value || null)}
+              onChange={(v) => setTransactionFilter("dateFrom", v || null)}
             />
-            <Input
-              type="date"
-              placeholder="Até"
+            <DateInput
               value={filters.dateTo ?? ""}
-              onChange={(e) => setTransactionFilter("dateTo", e.target.value || null)}
+              onChange={(v) => setTransactionFilter("dateTo", v || null)}
             />
           </div>
         </div>
