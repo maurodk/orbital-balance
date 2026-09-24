@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-type TransactionDialogMode = "expense" | "income" | null;
+type TransactionDialogMode = "expense" | "income" | "reserve" | null;
 
 interface UIState {
   transactionDialogMode: TransactionDialogMode;

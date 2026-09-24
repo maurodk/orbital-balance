@@ -2,11 +2,11 @@
 
 import { useMemo, useEffect, useState } from "react";
 import { motion, animate } from "framer-motion";
-import { TrendingUp, TrendingDown, Wallet, ArrowRight, AlertTriangle } from "lucide-react";
+import { TrendingUp, TrendingDown, Wallet, ArrowRight, AlertTriangle, PiggyBank } from "lucide-react";
 import Link from "next/link";
 import { useTransactions, useRecentTransactions } from "@/hooks/useTransactions";
 import { useCategorySpending } from "@/hooks/useBalance";
-import { calculateMonthSummary } from "@/lib/calculations";
+import { calculateCurrentBalance, calculateMonthSummary } from "@/lib/calculations";
 import { formatCurrency } from "@/lib/formatters";
 import { TransactionCard } from "@/components/transactions/transaction-card";
 import { MonthlyLineChart } from "@/components/charts/monthly-line-chart";
@@ -75,12 +75,7 @@ export default function DashboardPage() {
     [allTransactions, month, year]
   );
 
-  const balance = useMemo(() => {
-    const effective = allTransactions.filter((t) => !t.is_scheduled);
-    const inc = effective.filter((t) => t.type === "income").reduce((s, t) => s + t.amount, 0);
-    const exp = effective.filter((t) => t.type === "expense").reduce((s, t) => s + t.amount, 0);
-    return inc - exp;
-  }, [allTransactions]);
+  const balance = useMemo(() => calculateCurrentBalance(allTransactions), [allTransactions]);
 
   const last6Months = useMemo<MonthSummary[]>(() => {
     return Array.from({ length: 6 }, (_, i) => {
@@ -163,6 +158,17 @@ export default function DashboardPage() {
                     {formatCurrency(summary.totalExpense)}
                   </span>
                 </div>
+                {summary.totalReserve > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-1.5 text-xs text-orbital-muted">
+                      <PiggyBank className="h-3.5 w-3.5 text-orbital-gold" />
+                      Reserva
+                    </span>
+                    <span className="text-xs font-semibold text-orbital-gold tabular-nums">
+                      {formatCurrency(summary.totalReserve)}
+                    </span>
+                  </div>
+                )}
                 <div className="flex items-center justify-between border-t border-orbital-gold/10 pt-2.5">
                   <span className="flex items-center gap-1.5 text-xs text-orbital-muted">
                     <Wallet className="h-3.5 w-3.5 text-orbital-gold" />
@@ -191,6 +197,13 @@ export default function DashboardPage() {
             >
               <TrendingDown className="h-4 w-4" />
               Registrar Gasto
+            </Button>
+            <Button
+              onClick={() => openTransactionDialog("reserve")}
+              className="w-full gap-2 bg-orbital-gold/12 text-orbital-gold border border-orbital-gold/30 hover:bg-orbital-gold hover:text-orbital-deep hover:border-orbital-gold hover:shadow-[0_0_20px_rgba(212,175,122,0.3)] transition-all duration-250 font-semibold py-3 rounded-xl text-sm"
+            >
+              <PiggyBank className="h-4 w-4" />
+              Enviar p/ Reserva
             </Button>
           </div>
         </motion.div>

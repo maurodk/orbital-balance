@@ -12,6 +12,7 @@ import {
   ArrowLeftRight,
   TrendingUp,
   TrendingDown,
+  PiggyBank,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,12 +33,15 @@ import { RECURRENCE_OPTIONS } from "@/constants/categories";
 import { cn } from "@/lib/utils";
 
 const schema = z.object({
-  type: z.enum(["expense", "income"]),
+  type: z.enum(["expense", "income", "reserve"]),
   amount: z.string().min(1, "Informe o valor"),
   description: z.string().min(1, "Informe a descrição"),
   category_id: z.string().optional().nullable(),
   payment_method: z.enum(["card", "cash", "pix", "transfer"]),
-  date: z.string().min(1, "Informe a data"),
+  date: z
+    .string()
+    .min(1, "Informe uma data válida (DD/MM/AAAA)")
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Informe uma data válida (DD/MM/AAAA)"),
   recurrence: z.enum(["none", "daily", "weekly", "monthly", "yearly"]),
   necessity_tag: z.enum(["necessary", "unnecessary", "pending"]),
   notes: z.string().optional(),
@@ -117,8 +121,8 @@ export function TransactionForm({ defaultType = "expense", editingTransaction, o
   });
 
   const currentType = watch("type");
-  const filteredCategories = categories.filter(
-    (c) => c.type === currentType || c.type === "both"
+  const filteredCategories = categories.filter((c) =>
+    currentType === "reserve" ? c.type === "both" : c.type === currentType || c.type === "both"
   );
 
   useEffect(() => {
@@ -146,7 +150,7 @@ export function TransactionForm({ defaultType = "expense", editingTransaction, o
       payment_method: values.payment_method as PaymentMethod,
       date: values.date,
       recurrence: values.recurrence as RecurrenceType,
-      necessity_tag: values.type === "income" ? "pending" : (values.necessity_tag as NecessityTag),
+      necessity_tag: values.type === "expense" ? (values.necessity_tag as NecessityTag) : "pending",
       notes: values.notes || null,
       is_scheduled: false,
       tags: null,
@@ -167,7 +171,7 @@ export function TransactionForm({ defaultType = "expense", editingTransaction, o
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {/* Type toggle */}
       <div className="flex rounded-lg overflow-hidden border border-orbital-gold/20">
-        {(["expense", "income"] as const).map((t) => (
+        {(["expense", "income", "reserve"] as const).map((t) => (
           <label
             key={t}
             className={cn(
@@ -175,13 +179,21 @@ export function TransactionForm({ defaultType = "expense", editingTransaction, o
               currentType === t
                 ? t === "expense"
                   ? "bg-destructive/20 text-destructive"
-                  : "bg-success/20 text-success"
+                  : t === "income"
+                  ? "bg-success/20 text-success"
+                  : "bg-orbital-gold/20 text-orbital-gold"
                 : "text-orbital-muted hover:text-orbital-white hover:bg-orbital-surface-hover"
             )}
           >
             <input type="radio" {...register("type")} value={t} className="sr-only" />
-            {t === "expense" ? <TrendingDown className="h-4 w-4" /> : <TrendingUp className="h-4 w-4" />}
-            {t === "expense" ? "Gasto" : "Receita"}
+            {t === "expense" ? (
+              <TrendingDown className="h-4 w-4" />
+            ) : t === "income" ? (
+              <TrendingUp className="h-4 w-4" />
+            ) : (
+              <PiggyBank className="h-4 w-4" />
+            )}
+            {t === "expense" ? "Gasto" : t === "income" ? "Receita" : "Reserva"}
           </label>
         ))}
       </div>

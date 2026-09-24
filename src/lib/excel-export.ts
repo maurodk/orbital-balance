@@ -78,7 +78,7 @@ export function exportFinanceWorkbook({
       row([
         textCell(t.date),
         textCell(t.description),
-        textCell(t.type === "income" ? "Receita" : "Despesa"),
+        textCell(t.type === "income" ? "Receita" : t.type === "reserve" ? "Reserva" : "Despesa"),
         textCell(t.category?.name ?? "Sem categoria"),
         textCell(NECESSITY_LABELS[t.necessity_tag] ?? "Pendente"),
         textCell(t.payment_method),
@@ -95,13 +95,16 @@ export function exportFinanceWorkbook({
     row([textCell("Indicador"), textCell("Valor calculado")]),
     row([textCell("Receitas"), formulaCell(`=SUMIF(Transacoes!R2C3:R${lastTransactionRow}C3,"Receita",Transacoes!R2C9:R${lastTransactionRow}C9)`)]),
     row([textCell("Despesas"), formulaCell(`=SUMIF(Transacoes!R2C3:R${lastTransactionRow}C3,"Despesa",Transacoes!R2C9:R${lastTransactionRow}C9)`)]),
-    row([textCell("Saldo"), formulaCell("=R[-2]C-R[-1]C")]),
+    row([textCell("Reservas"), formulaCell(`=SUMIF(Transacoes!R2C3:R${lastTransactionRow}C3,"Reserva",Transacoes!R2C9:R${lastTransactionRow}C9)`)]),
+    row([textCell("Saldo"), formulaCell("=R[-3]C-R[-2]C-R[-1]C")]),
     row([textCell("Total de transacoes"), formulaCell(`=COUNTA(Transacoes!R2C2:R${lastTransactionRow}C2)`)]),
     row([textCell("Receitas registradas no app"), numberCell(summary.totalIncome)]),
     row([textCell("Despesas registradas no app"), numberCell(summary.totalExpense)]),
+    row([textCell("Reservas registradas no app"), numberCell(summary.totalReserve)]),
     row([textCell("Saldo registrado no app"), numberCell(summary.balance)]),
     row([textCell("Receitas mes anterior"), numberCell(previousSummary?.totalIncome ?? 0)]),
     row([textCell("Despesas mes anterior"), numberCell(previousSummary?.totalExpense ?? 0)]),
+    row([textCell("Reservas mes anterior"), numberCell(previousSummary?.totalReserve ?? 0)]),
   ];
 
   const categoryRows = [

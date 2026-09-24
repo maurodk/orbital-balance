@@ -1,6 +1,6 @@
 import type { Database } from "./database";
 
-export type TransactionType = "expense" | "income";
+export type TransactionType = "expense" | "income" | "reserve";
 export type PaymentMethod = "card" | "cash" | "pix" | "transfer";
 export type RecurrenceType = "none" | "daily" | "weekly" | "monthly" | "yearly";
 export type NecessityTag = "necessary" | "unnecessary" | "pending";
@@ -66,6 +66,7 @@ export interface MonthSummary {
   year: number;
   totalIncome: number;
   totalExpense: number;
+  totalReserve: number;
   balance: number;
   transactionCount: number;
 }

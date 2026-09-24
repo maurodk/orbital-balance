@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { subMonths } from "date-fns";
-import { BarChart3, Download, TrendingDown, TrendingUp, Wallet } from "lucide-react";
+import { BarChart3, Download, PiggyBank, TrendingDown, TrendingUp, Wallet } from "lucide-react";
 import { useTransactions } from "@/hooks/useTransactions";
 import { calculateCategorySpending, calculateMonthSummary } from "@/lib/calculations";
 import { exportFinanceWorkbook } from "@/lib/excel-export";
@@ -258,7 +258,7 @@ export default function ReportsPage() {
         </div>
       ) : (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
               {
                 label: "Receitas",
@@ -271,6 +271,12 @@ export default function ReportsPage() {
                 value: summary.totalExpense,
                 icon: TrendingDown,
                 color: "text-destructive",
+              },
+              {
+                label: "Reservas",
+                value: summary.totalReserve,
+                icon: PiggyBank,
+                color: "text-orbital-gold",
               },
               {
                 label: "Saldo",

@@ -27,13 +27,18 @@ export function calculateMonthSummary(
     inMonth.filter((t) => t.type === "expense"),
     (t) => t.amount
   );
+  const totalReserve = sumBy(
+    inMonth.filter((t) => t.type === "reserve"),
+    (t) => t.amount
+  );
 
   return {
     month,
     year,
     totalIncome,
     totalExpense,
-    balance: totalIncome - totalExpense,
+    totalReserve,
+    balance: totalIncome - totalExpense - totalReserve,
     transactionCount: inMonth.length,
   };
 }
@@ -48,7 +53,11 @@ export function calculateCurrentBalance(transactions: Transaction[]): number {
     effective.filter((t) => t.type === "expense"),
     (t) => t.amount
   );
-  return income - expense;
+  const reserve = sumBy(
+    effective.filter((t) => t.type === "reserve"),
+    (t) => t.amount
+  );
+  return income - expense - reserve;
 }
 
 export function calculateCategorySpending(

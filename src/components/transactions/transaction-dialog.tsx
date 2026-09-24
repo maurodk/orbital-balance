@@ -19,7 +19,11 @@ export function TransactionDialog() {
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto scrollbar-thin">
         <DialogHeader>
           <DialogTitle>
-            {transactionDialogMode === "income" ? "Adicionar Receita" : "Registrar Gasto"}
+            {transactionDialogMode === "income"
+              ? "Adicionar Receita"
+              : transactionDialogMode === "reserve"
+              ? "Enviar para Reserva"
+              : "Registrar Gasto"}
           </DialogTitle>
         </DialogHeader>
         {isOpen && (

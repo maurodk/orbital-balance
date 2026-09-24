@@ -108,6 +108,11 @@ export function TransactionCard({
                   {necessity.label}
                 </span>
               )}
+              {t.type === "reserve" && (
+                <span className="text-xs px-1.5 py-0.5 rounded-full text-orbital-gold bg-orbital-gold/10">
+                  Reserva
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -123,7 +128,11 @@ export function TransactionCard({
           <span
             className={cn(
               "text-sm font-semibold",
-              t.type === "income" ? "text-success" : "text-destructive"
+              t.type === "income"
+                ? "text-success"
+                : t.type === "reserve"
+                ? "text-orbital-gold"
+                : "text-destructive"
             )}
           >
             {t.type === "income" ? "+" : "-"}

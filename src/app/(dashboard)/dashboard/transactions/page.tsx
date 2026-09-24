@@ -98,6 +98,7 @@ export default function TransactionsPage() {
               <SelectItem value="all">Todos os tipos</SelectItem>
               <SelectItem value="income">Receitas</SelectItem>
               <SelectItem value="expense">Despesas</SelectItem>
+              <SelectItem value="reserve">Reservas</SelectItem>
             </SelectContent>
           </Select>
 

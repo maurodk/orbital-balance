@@ -61,12 +61,24 @@ const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
       setText((current) => (brToIso(current) === (value ?? "") ? current : isoToBr(value)));
     }, [value]);
 
+    const digitCount = text.replace(/\D/g, "").length;
+    const isComplete = digitCount === 8;
+    const isInvalid = isComplete && brToIso(text) === "";
+
     const handleText = (raw: string) => {
       const masked = maskBr(raw);
       setText(masked);
-      const iso = brToIso(masked);
-      if (iso) onChange(iso);
-      else if (masked === "") onChange("");
+      // The ISO value is only ever set from a fully valid, real calendar date —
+      // partial or invalid input clears it so the form can never silently hold
+      // a value that doesn't match what's on screen.
+      onChange(brToIso(masked));
+    };
+
+    const handleBlur = () => {
+      // An incomplete date left in the field (e.g. abandoned mid-edit) is
+      // invalid too: clear the display so it can't be mistaken for a saved date.
+      if (text !== "" && !isComplete) setText("");
+      onBlur?.();
     };
 
     const openPicker = () => {
@@ -96,9 +108,14 @@ const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
           placeholder={placeholder}
           value={text}
           disabled={disabled}
+          aria-invalid={isInvalid}
           onChange={(e) => handleText(e.target.value)}
-          onBlur={onBlur}
-          className={cn("pl-10 pr-4", className)}
+          onBlur={handleBlur}
+          className={cn(
+            "pl-10 pr-4",
+            isInvalid && "border-destructive focus-visible:ring-destructive",
+            className
+          )}
         />
         <input
           ref={nativeRef}
@@ -112,6 +129,9 @@ const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
           }}
           className="pointer-events-none absolute bottom-0 left-10 h-0 w-0 opacity-0 [color-scheme:dark]"
         />
+        {isInvalid && (
+          <p className="mt-1 text-xs text-destructive">Data inválida. Use o formato DD/MM/AAAA.</p>
+        )}
       </div>
     );
   }

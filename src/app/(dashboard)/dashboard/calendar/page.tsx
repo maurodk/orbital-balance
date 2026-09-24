@@ -23,6 +23,12 @@ import { LoadingSpinner } from "@/components/shared/loading-spinner";
 
 const WEEK_DAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
+function eventAmountClass(type: CalendarEvent["type"]) {
+  if (type === "income") return "text-success";
+  if (type === "reserve") return "text-orbital-gold";
+  return "text-destructive";
+}
+
 function DayCell({
   date,
   events,
@@ -38,6 +44,7 @@ function DayCell({
 }) {
   const incomeEvents = events.filter((e) => e.type === "income");
   const expenseEvents = events.filter((e) => e.type === "expense");
+  const reserveEvents = events.filter((e) => e.type === "reserve");
   const today = isToday(date);
 
   return (
@@ -66,6 +73,9 @@ function DayCell({
         {expenseEvents.length > 0 && (
           <span className="h-1.5 w-1.5 rounded-full bg-destructive shadow-[0_0_4px_rgba(239,68,68,0.6)]" />
         )}
+        {reserveEvents.length > 0 && (
+          <span className="h-1.5 w-1.5 rounded-full bg-orbital-gold shadow-[0_0_4px_rgba(212,175,122,0.6)]" />
+        )}
       </div>
     </button>
   );
@@ -82,6 +92,7 @@ function DayDetail({
 }) {
   const incomeTotal = events.filter((e) => e.type === "income").reduce((s, e) => s + e.amount, 0);
   const expenseTotal = events.filter((e) => e.type === "expense").reduce((s, e) => s + e.amount, 0);
+  const reserveTotal = events.filter((e) => e.type === "reserve").reduce((s, e) => s + e.amount, 0);
 
   return (
     <motion.div
@@ -119,6 +130,12 @@ function DayDetail({
               <p className="text-sm font-semibold text-destructive">-{formatCurrency(expenseTotal)}</p>
             </div>
           )}
+          {reserveTotal > 0 && (
+            <div>
+              <p className="text-xs text-orbital-muted">Reserva</p>
+              <p className="text-sm font-semibold text-orbital-gold">-{formatCurrency(reserveTotal)}</p>
+            </div>
+          )}
         </div>
       )}
 
@@ -146,13 +163,7 @@ function DayDetail({
                   <span className="text-orbital-muted">(agendado)</span>
                 )}
               </div>
-              <span
-                className={
-                  e.type === "income"
-                    ? "text-success font-medium"
-                    : "text-destructive font-medium"
-                }
-              >
+              <span className={cn(eventAmountClass(e.type), "font-medium")}>
                 {e.type === "income" ? "+" : "-"}
                 {formatCurrency(e.amount)}
               </span>
@@ -192,15 +203,17 @@ export default function CalendarPage() {
   const monthTotals = useMemo(() => {
     let income = 0;
     let expense = 0;
+    let reserve = 0;
     eventsByDate.forEach((events) => {
       events.forEach((e) => {
         if (!e.isScheduled) {
           if (e.type === "income") income += e.amount;
+          else if (e.type === "reserve") reserve += e.amount;
           else expense += e.amount;
         }
       });
     });
-    return { income, expense, balance: income - expense };
+    return { income, expense, reserve, balance: income - expense - reserve };
   }, [eventsByDate]);
 
   // Agenda: sorted days with events
@@ -235,6 +248,14 @@ export default function CalendarPage() {
             -{formatCurrency(monthTotals.expense)}
           </p>
         </div>
+        {monthTotals.reserve > 0 && (
+          <div>
+            <p className="text-xs text-orbital-muted uppercase tracking-wider mb-0.5">Reserva</p>
+            <p className="text-lg font-bold text-orbital-gold tabular-nums">
+              -{formatCurrency(monthTotals.reserve)}
+            </p>
+          </div>
+        )}
         <div>
           <p className="text-xs text-orbital-muted uppercase tracking-wider mb-0.5">Saldo do mês</p>
           <p
@@ -390,6 +411,7 @@ export default function CalendarPage() {
                     const dayDate = new Date(dateKey + "T00:00:00");
                     const dayIncome = events.filter((e) => e.type === "income").reduce((s, e) => s + e.amount, 0);
                     const dayExpense = events.filter((e) => e.type === "expense").reduce((s, e) => s + e.amount, 0);
+                    const dayReserve = events.filter((e) => e.type === "reserve").reduce((s, e) => s + e.amount, 0);
 
                     return (
                       <div key={dateKey} className="rounded-xl bg-orbital-deep/40 border border-orbital-gold/8 p-4">
@@ -403,6 +425,9 @@ export default function CalendarPage() {
                             )}
                             {dayExpense > 0 && (
                               <span className="text-destructive">-{formatCurrency(dayExpense)}</span>
+                            )}
+                            {dayReserve > 0 && (
+                              <span className="text-orbital-gold">-{formatCurrency(dayReserve)}</span>
                             )}
                           </div>
                         </div>
@@ -422,13 +447,7 @@ export default function CalendarPage() {
                                   <span className="text-orbital-muted text-[10px]">(agendado)</span>
                                 )}
                               </div>
-                              <span
-                                className={
-                                  e.type === "income"
-                                    ? "text-success font-medium tabular-nums"
-                                    : "text-destructive font-medium tabular-nums"
-                                }
-                              >
+                              <span className={cn(eventAmountClass(e.type), "font-medium tabular-nums")}>
                                 {e.type === "income" ? "+" : "-"}
                                 {formatCurrency(e.amount)}
                               </span>

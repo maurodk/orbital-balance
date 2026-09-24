@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, TrendingUp, TrendingDown } from "lucide-react";
+import { Plus, TrendingUp, TrendingDown, PiggyBank } from "lucide-react";
 import { useUIStore } from "@/store/useUIStore";
 
 export function FloatingActionButton() {
   const [open, setOpen] = useState(false);
   const { openTransactionDialog } = useUIStore();
 
-  const handleSelect = (mode: "income" | "expense") => {
+  const handleSelect = (mode: "income" | "expense" | "reserve") => {
     setOpen(false);
     openTransactionDialog(mode);
   };
@@ -24,12 +24,24 @@ export function FloatingActionButton() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.9 }}
               whileTap={{ scale: 0.98 }}
-              transition={{ duration: 0.12, delay: 0.03 }}
+              transition={{ duration: 0.12, delay: 0.06 }}
               onClick={() => handleSelect("expense")}
               className="flex items-center gap-2 rounded-full bg-orbital-surface border border-orbital-gold/20 px-4 py-2.5 text-sm font-medium text-orbital-white shadow-lg hover:bg-orbital-surface-hover transition-colors duration-100"
             >
               <TrendingDown className="h-4 w-4 text-destructive" />
               Registrar Gasto
+            </motion.button>
+            <motion.button
+              initial={{ opacity: 0, y: 8, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.9 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.12, delay: 0.03 }}
+              onClick={() => handleSelect("reserve")}
+              className="flex items-center gap-2 rounded-full bg-orbital-surface border border-orbital-gold/20 px-4 py-2.5 text-sm font-medium text-orbital-white shadow-lg hover:bg-orbital-surface-hover transition-colors duration-100"
+            >
+              <PiggyBank className="h-4 w-4 text-orbital-gold" />
+              Enviar p/ Reserva
             </motion.button>
             <motion.button
               initial={{ opacity: 0, y: 8, scale: 0.9 }}

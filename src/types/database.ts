@@ -6,7 +6,7 @@
  *   pnpm dlx supabase gen types typescript --project-id ddykmiblwpjdeerykmnk > src/types/database.ts
  */
 
-export type TransactionTypeDB = "expense" | "income";
+export type TransactionTypeDB = "expense" | "income" | "reserve";
 export type PaymentMethodDB = "card" | "cash" | "pix" | "transfer";
 export type RecurrenceTypeDB = "none" | "daily" | "weekly" | "monthly" | "yearly";
 export type NecessityTagDB = "necessary" | "unnecessary" | "pending";
